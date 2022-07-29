@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql:///vhr?serverTimezone=Asia/Shanghai
+
+server:
+  port: 8081
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false

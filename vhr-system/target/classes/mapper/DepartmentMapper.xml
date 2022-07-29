@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.zlp.framework.mapper.DepartmentMapper">
+
+
+    <resultMap id="Department" type="com.qf.zlp.framework.entity.Department">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="parentId" column="parentId"/>
+        <result property="depPath" column="depPath"/>
+        <result property="enabled" column="enabled"/>
+        <result property="isParent" column="isParent"/>
+    </resultMap>
+    
+    <resultMap id="DepartmentRecursion" type="com.qf.zlp.framework.entity.vo.DepartmentChildrenVO" extends="Department">
+        <collection property="children" ofType="com.qf.zlp.framework.entity.Department" select='com.qf.zlp.framework.mapper.DepartmentMapper.allDepartment' column="id">
+
+        </collection>
+    </resultMap>
+
+<select id="allDepartment" resultMap="DepartmentRecursion">
+    select * from Department where parentId=#{pid}
+    </select>
+
+    <select id="addDepartment" statementType="CALLABLE">
+        call addDep(#{name,jdbcType=VARCHAR,mode=IN},#{parentId,jdbcType=INTEGER,mode=IN},#{enabled,jdbcType=BOOLEAN,mode=IN},#{result,jdbcType=INTEGER,mode=OUT},#{id,jdbcType=INTEGER,mode=OUT})
+    </select>
+    
+  <select statementType="CALLABLE" id="deleteDepartmentById">
+        call deleteDep(#{id,jdbcType=INTEGER,mode=IN},#{result,jdbcType=INTEGER,mode=OUT})
+
+  </select>
+</mapper>

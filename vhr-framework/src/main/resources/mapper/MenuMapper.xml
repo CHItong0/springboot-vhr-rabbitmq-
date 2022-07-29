@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.zlp.framework.mapper.MenuMapper">
+    <!--结果集-->
+    <resultMap id="BaseResultMap" type="com.qf.zlp.framework.entity.Menu">
+        <id property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="name" column="name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="parentId" column="parentId"/>
+        <result property="path" column="path"/>
+        <result property="iconCls" column="iconCls"/>
+        <result property="component" column="component"/>
+        <result property="keepAlive" column="keepAlive"/>
+        <result property="requireAuth" column="requireAuth"/>
+    </resultMap>
+
+    <!--多对多结果集-->
+    <resultMap id="MenuWithChildren" type="com.qf.zlp.framework.entity.vo.MenuVO" extends="BaseResultMap">
+      <collection property="children" ofType="com.qf.zlp.framework.entity.Menu">
+        <id property="id" column="id2"/>
+        <result property="name" column="name2"/>
+        <result property="enabled" column="enabled2"/>
+        <result property="parentId" column="parentId2"/>
+        <result property="path" column="path2"/>
+        <result property="component" column="component2"/>
+      </collection>
+    </resultMap>
+
+    <!--封装 查询 menu 表 对应哪些角色才能查看的结果集-->
+    <resultMap id="MenuRole" type="com.qf.zlp.framework.entity.vo.MenuRoleVo">
+        <id property="id" column="id"/>
+        <result property="url" column="url"/>
+        <collection property="roles" ofType="com.qf.zlp.framework.entity.Role">
+            <id property="id" column="rid"/>
+            <result property="name" column="rname"/>
+        </collection>
+
+
+
+    </resultMap>
+
+
+    <select id="getAllMenuseByHrid" resultMap="MenuWithChildren">
+    SELECT
+        m1.*,
+        m2.component AS component2,
+        m2.enabled AS enabled2,
+        m2.id AS id2,
+        m2.`name` AS name2,
+        m2.parentId AS parentId2,
+        m2.path AS path2
+    FROM
+        menu m1,
+        menu m2,
+        menu_role mr,
+        hr_role hrr
+    WHERE
+        m1.id = m2.parentId
+      AND m2.id = mr.mid
+      AND mr.rid = hrr.rid
+      AND hrr.hrid = #{hrid}
+    ORDER BY
+        m1.id
+    </select>
+
+    <select id="getMenuAllRole" resultMap="MenuRole">
+        SELECT
+            m.id,
+            m.url,
+            r.id AS rid,
+            r.`name` AS rname
+        FROM
+            menu m
+                LEFT JOIN menu_role mr ON m.`id` = mr.`mid`
+                LEFT JOIN role r ON r.`id` = mr.`rid`
+
+        ORDER BY
+            m.id
+
+
+    </select>
+</mapper>
